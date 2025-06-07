@@ -1,47 +1,63 @@
-name: Build Kivy APK
+name: Build APK with Buildozer
 
 on:
   push:
     branches:
-      - main
-      - master
-      - '**'   # 所有分支 push 都触发
+      - main  # 监听 main 分支 push 事件
+  pull_request:
 
 jobs:
-  build-apk:
+  build:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout repo
       uses: actions/checkout@v3
 
-    - name: Setup Python
+    - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.10'
+        python-version: '3.9'
 
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y python3-pip git zip unzip openjdk-17-jdk
-        pip install --upgrade pip
-        pip install buildozer cython==0.29.36
+        sudo apt-get install -y \
+          python3-pip \
+          build-essential \
+          git \
+          zlib1g-dev \
+          libssl-dev \
+          libffi-dev \
+          libsqlite3-dev \
+          libncurses5-dev \
+          libbz2-dev \
+          libreadline-dev \
+          liblzma-dev \
+          libjpeg-dev \
+          libfreetype6-dev \
+          pkg-config \
+          libgl1-mesa-dev \
+          libgles2-mesa-dev \
+          libpulse-dev \
+          libsndfile1-dev \
+          libmtdev-dev \
+          libportmidi-dev \
+          libswscale-dev \
+          libavformat-dev \
+          libavcodec-dev
 
-    - name: Initialize buildozer.spec if missing
+    - name: Install buildozer and cython
       run: |
-        if [ ! -f buildozer.spec ]; then
-          buildozer init
-        fi
+        python3 -m pip install --upgrade pip
+        python3 -m pip install buildozer cython
 
     - name: Build APK
       run: |
         buildozer android debug
 
-    - name: List APK files
-      run: ls -l bin/
-
     - name: Upload APK artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v3
       with:
         name: app-debug-apk
         path: bin/*.apk
