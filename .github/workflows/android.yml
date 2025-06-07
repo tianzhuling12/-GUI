@@ -3,7 +3,9 @@ name: Build APK with Buildozer
 on:
   push:
     branches:
-      - main  # 监听 main 分支 push 事件
+      - main
+      - master
+      # 监听 main 分支 push 事件
   pull_request:
 
 jobs:
